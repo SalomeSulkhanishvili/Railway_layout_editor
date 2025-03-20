@@ -13,13 +13,13 @@ pub enum Direction {
 pub struct Group {
     pub id: u32,
     pub blocks: Vec<Block>,
-    pub connections: Vec<Connection>, // group_id -> connection_type
+    pub connections: Vec<Connection>, 
     pub direction: Option<Direction>,
     pub start_block_id: Option<u32>,
     pub end_block_id: Option<u32>,
 }
 
-// MARK: - Group Implemenration
+// MARK: - Group Implementation
 impl Group {
     pub fn update_start_end_blocks(&mut self) {
         if self.blocks.is_empty() {
@@ -30,19 +30,19 @@ impl Group {
 
         match self.direction {
             Some(Direction::Horizontal) => {
-                // For horizontal groups, start is the leftmost block, end is the rightmost
+                // For horizontal groups => start is the leftmost block and end is the rightmost
                 self.blocks.sort_by(|a, b| a.grid_pos.0.cmp(&b.grid_pos.0));
                 self.start_block_id = Some(self.blocks[0].id);
                 self.end_block_id = Some(self.blocks.last().unwrap().id);
             }
             Some(Direction::Vertical) => {
-                // For vertical groups, start is the topmost block, end is the bottommost
+                // For vertical groups => start is the topmost block and end is the bottommost
                 self.blocks.sort_by(|a, b| a.grid_pos.1.cmp(&b.grid_pos.1));
                 self.start_block_id = Some(self.blocks[0].id);
                 self.end_block_id = Some(self.blocks.last().unwrap().id);
             }
             None => {
-                // For groups with no direction, start and end are the first and last blocks
+                // For groups with no direction => start and end are the first and last blocks
                 if !self.blocks.is_empty() {
                     self.start_block_id = Some(self.blocks[0].id);
                     self.end_block_id = Some(self.blocks.last().unwrap().id);
@@ -51,6 +51,8 @@ impl Group {
         }
     }
 
+    // check if the given block_id (id) is the id of the group's start or end block 
+    // we need the given checker for the setConnection mode {enum AppMode} in order to only allow first and last block selection
     pub fn check_selected_blocks(&self, id:u32, start_id_op: Option<u32>, end_id_op: Option<u32>) -> bool{
         if let Some(end_id) = end_id_op {
             if let Some(start_id) = start_id_op {

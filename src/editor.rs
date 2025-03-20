@@ -121,6 +121,7 @@ impl RailwayEditor {
                 self.update_group_direction(group2_id);
             }
         }
+        self.reindex_groups();
     }
 
     // Connect two groups
@@ -161,7 +162,7 @@ impl RailwayEditor {
                         if ex_connection.from_group == connection.from_group
                             && ex_connection.to_group == connection.to_group
                             && ex_connection.from_connection_type == connection.from_connection_type
-                            && ex_connection.from_connection_type == connection.to_connection_type
+                            && ex_connection.to_connection_type == connection.to_connection_type
                         {
                             connection_exists = true;
                             break;
@@ -219,5 +220,36 @@ impl RailwayEditor {
             }
             Err(e) => eprintln!("Failed to load layout: {}", e),
         }
+    }
+
+    fn reindex_groups(&mut self) {
+        let mut new_groups = HashMap::new();
+        let old_ids: Vec<u32> = self.groups.keys().cloned().collect();
+        let mut id_mapping = HashMap::new();
+        
+        // Create mapping
+        for (i, old_id) in old_ids.iter().enumerate() {
+            id_mapping.insert(*old_id, (i + 1) as u32);
+        }
+        
+        // Create new groups with updated IDs
+        for (old_id, group) in &self.groups {
+            let new_id = id_mapping[old_id];
+            let mut new_group = group.clone();
+            
+            // Update group ID
+            new_group.id = new_id;
+            
+            // Update connections (TODO: Crash when trying to merge groups after having some connections)
+            for conn in &mut new_group.connections {
+                conn.from_group = id_mapping[&conn.from_group];
+                conn.to_group = id_mapping[&conn.to_group];
+            }
+            
+            new_groups.insert(new_id, new_group);
+        }
+        
+        self.groups = new_groups;
+        self.next_group_id = (self.groups.len() + 1) as u32;
     }
 }

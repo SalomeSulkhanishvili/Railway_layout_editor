@@ -190,13 +190,17 @@ impl RailwayEditor {
         ui.label(format!("Set Connections:"));
         ui.horizontal(|ui| {
             if ui.button("Connect Start").clicked() {
-                self.message = "In progress".to_string();
+                self.message = "Start Connections in progress (This button does not work yet)!".to_string();
                 self.show_message_box = true;
             }
 
             // ===== Remove Connection Button ===== 
             if ui.button("Remove Connection").clicked() {
-                self.message = "In progress".to_string();
+                for group in self.groups.values_mut() {
+                    group.connections.clear();
+                }
+
+                self.message = "Removed Connections Successfully!".to_string();
                 self.show_message_box = true;
             }
         });
